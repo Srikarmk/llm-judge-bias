@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "LLM Judge Bias: does an LLM judge's verdict depend on things that should not matter?"
+abstract: "A measurement study of LLM-as-judge bias with local open models: position, verbosity, confident tone, markdown formatting and self-preference, on answer pairs whose better answer is known by construction (GSM8K solutions with one planted arithmetic error, TruthfulQA correct and incorrect answers), with an A/A noise floor, single-answer scoring, and agreement with MT-bench human votes."
+authors:
+  - family-names: Manda
+    given-names: Kameswara Sai Srikar
+date-released: "2026-10-22"
+url: "https://www.srikarmk.dev/projects/llm-judge-bias"
+repository-code: "https://github.com/Srikarmk/llm-judge-bias"
+license: MIT
+keywords: [llm, llm-as-judge, evaluation, position bias, verbosity bias, self-preference]
