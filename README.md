@@ -15,18 +15,54 @@ predictions, with dated addenda: [HYPOTHESES.md](HYPOTHESES.md).
 
 ## Findings
 
-**Not run yet.** The pre-registration ([HYPOTHESES.md](HYPOTHESES.md)) was committed before any full-run
-call; the full run needs mains power and is started separately ([RUN.md](RUN.md)). This section will hold
-the results, scored against the predictions, once the run is done. What the pilot (on items excluded from
-every reported number) showed is in [HYPOTHESES.md](HYPOTHESES.md) and below under Design.
+Numbers are from [reports/results.md](reports/results.md): 95% bootstrap intervals over items, `pp` =
+percentage points. The planned grid ran in full: `qwen3:8b`, `llama3.1:8b` and `gemma3:12b` judged 80
+GSM8K planted-error pairs and 80 TruthfulQA pairs in both orders under every condition, plus the
+right-answer controls, single-answer scoring (40 + 40), self-preference (60 problems) and 74 MT-bench
+pairs; `qwen3:30b-a3b` (thinking) judged 25 + 25 pairs in the base and wrong-answer conditions. 10,052
+model calls in all.
 
-**Pilot.** Before the pre-registration, templates and parsers were checked on the pilot items (8 GSM8K
-pairs, 8 TruthfulQA pairs, 6 self-preference problems, 4 MT-bench pairs, all excluded from the results);
-[reports/pilot.md](reports/pilot.md) is generated from those calls. Every pairwise verdict of the three
-main judges parsed by the requested `Verdict:` line. On these few items the judges leaned hard on slot A
-(`llama3.1:8b` picked slot A in both orders on all 8 GSM8K pairs), the confident framing was penalised
-rather than rewarded, and the A/A repeat changed 1 verdict in 96 while the judge's wording changed in 21
-of 96 repeats. These are not results; they set the predictions marked (P) in HYPOTHESES.md.
+- **Order decides many verdicts.** Shown the same two answers in both orders, `llama3.1:8b` picked
+  whichever came first on 96% [91, 100] of GSM8K pairs, so its accuracy there was 50.6%, a coin flip.
+  `qwen3:8b` picked slot A both times on 42.5% of GSM8K pairs; `gemma3:12b` had no lean to either slot
+  (+0.6 pp [-5.6, +6.9]). With the right answer in slot A the 8B judges were right 90 to 93% of the time;
+  in slot B, 32 to 63%.
+- **Thinking fixed it, on few items.** `qwen3:30b-a3b` with reasoning on was right on 94% of 50 pairs and
+  consistent across orders on 96%, against 70% and 60% for `qwen3:8b` on the same items (confounded
+  with thinking and size).
+- **Noise floor is low.** The identical prompt sent twice changed 0.6% [0.0, 1.6] of verdicts for each
+  main judge, though the judge's wording changed more often. Every style effect below clears it: 18 of
+  18 judge-by-style cells have a flip rate above the repeat's.
+- **Padding a wrong answer helps it.** Restating the wrong answer at length, with no new content, cut
+  accuracy by 18.4 pp [13.8, 23.4] for `llama3.1:8b` and 8.1 pp [3.4, 12.8] for `gemma3:12b`
+  (`qwen3:8b` -3.8 pp, interval touching zero).
+- **Confidence backfires.** An openly confident wrong answer ("I am certain ...") was picked less, not
+  more: accuracy rose 8 to 13 pp for every main judge. The same framing on the right answer cost 4 to
+  33 pp. Read across both, the judges count stated certainty against an answer (mean pull -7.5 to
+  -22.2 pp).
+- **Markdown pulls a little.** Formatting an answer as markdown made it 4 to 8 pp more likely to be
+  picked, averaged over putting it on the wrong answer and on the right one.
+- **Two of three judges prefer their own work.** On pairs where both solutions are right, `qwen3:8b` and
+  `llama3.1:8b` picked their own about 12 pp more often than a neutral judge picked the same solution;
+  `gemma3:12b` picked its own 11 pp less often.
+- **Scored alone, wrong maths looks fine.** A solution with a planted arithmetic error still averaged
+  7.9 to 8.2 out of 10, against 8.8 to 9.3 for the correct one. Single-answer scoring ranked the right
+  answer higher on 62 to 71% of items; pairwise comparison did better for `gemma3:12b` (+10 pp
+  [+3.8, +16.9]), and about the same for `qwen3:8b` and `llama3.1:8b` (for `llama3.1:8b`, worse on GSM8K,
+  where its pairwise verdicts were mostly slot A).
+- **Agreement with humans.** On MT-bench pairs with a human majority, the judges agreed with it 68 to 80%
+  of the time, around the 66% two humans agree with each other in Zheng et al.; humans and judges both
+  preferred the longer answer about 70% of the time.
+
+How the 12 pre-registered predictions fared (details in results.md): 10 held (position bias, lower
+consistency on GSM8K, the A/A floor, the verbosity cost, confidence not helping, styles beating the
+floor, self-preference, human agreement in range, `gemma3:12b` most accurate, the thinking model best).
+Two did not: markdown was not the weakest style (for two judges verbosity pulled less), and on GSM8K
+pairwise judging beat single-answer scoring clearly for only one judge, where the prediction needed two.
+
+The verdict parser read 100% of pairwise verdicts by the requested `Verdict:` line for two judges and
+99% for the third. A hand-labelled check of 80 sampled outputs is drawn in `handcheck/` and pending;
+see Hand-check.
 
 ## Design
 
@@ -203,7 +239,7 @@ agreement figure is reported until it is done.
 
 ## Limits
 
-- **Reduced grid.** Sized from the pilot to about 8.5 hours of local compute: 80 items per known-answer
+- **A small grid.** Sized from the pilot to about 8.5 hours of local compute (it ran in full): 80 items per known-answer
   set for the main conditions, 40 for the right-answer controls and single-answer scoring, 60 problems
   for self-preference, and 25 per set for the thinking model. Intervals on the smaller cells are wide.
 - Small local models, 4-bit quantised, one judge prompt, temperature 0 and one seed. A hosted judge, a
